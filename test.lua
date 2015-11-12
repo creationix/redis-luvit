@@ -1,14 +1,14 @@
 local codec = require('./redis-codec')
 local jsonStringify = require('json').stringify
 
-local function test(str, expected, error)
-  local count, result, err = codec.decode(str, 1)
+local function test(str, expected)
+  local result = codec.decode(str)
   p(str, result, expected)
   assert(jsonStringify(result) == jsonStringify(expected))
-  assert(error == err)
 end
 
 test("*2\r\n*1\r\n+Hello\r\n+World\r\n", {{"Hello"},"World"})
+test("*2\r\n*1\r\n$5\r\nHello\r\n$5\r\nWorld\r\n", {{"Hello"},"World"})
 test("set language Lua\r\n", {"set", "language", "Lua"})
 test("$5\r\n12345\r\n", "12345")
 test("$5\r\n12345\r")
@@ -19,14 +19,6 @@ test("+1235\r\n", "1235")
 test("+1235\r\n1234", "1235")
 test(":45\r")
 test(":45\r\n", 45)
-test("-FATAL, YIKES\r\n", nil, "FATAL, YIKES")
-
---
--- local connect = require('coro-net').connect
---
--- coroutine.wrap(function ()
---   local read, write = connect { host = "localhost", port = 6379 }
---   write(encode{"set", "name", "Tim"})
---   p(read())
---   write()
--- end)()
+test("-FATAL, YIKES\r\n", {error="FATAL, YIKES"})
+test("*12\r\n$4\r\n2048\r\n$1\r\n0\r\n$4\r\n1024\r\n$2\r\n42\r\n$1\r\n5\r\n$1\r\n7\r\n$1\r\n5\r\n$1\r\n7\r\n$1\r\n5\r\n$1\r\n7\r\n$1\r\n5\r\n$1\r\n7\r\n",
+     { '2048', '0', '1024', '42', '5', '7', '5', '7', '5', '7', '5', '7' })

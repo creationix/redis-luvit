@@ -1,7 +1,12 @@
-local jsonStringify = require('json').stringify
+exports.name = "creationix/redis-codec"
+exports.version = "1.0.0"
+exports.description = "Pure Lua codec for RESP (REdis Serialization Protocol)"
+exports.tags = {"codec", "redis"}
+exports.license = "MIT"
+exports.author = { name = "Tim Caswell" }
+exports.homepage = "https://github.com/creationix/redis-luvit"
 
-
-local function encode(list)
+function exports.encode(list)
   local len = #list
   local parts = {"*" .. len .. '\r\n'}
   for i = 1, len do
@@ -15,7 +20,7 @@ local byte = string.byte
 local find = string.find
 local sub = string.sub
 
-local function parse(chunk, index)
+local function decode(chunk, index)
   local first = byte(chunk, index)
   if first == 43 then -- '+' Simple string
     local start = find(chunk, "\r\n", index, true)
@@ -43,7 +48,7 @@ local function parse(chunk, index)
     index = start + 2
     for i = 1, len do
       local value, err
-      start, value, err = parse(chunk, index)
+      start, value, err = decode(chunk, index)
       if not start then return end
       if not value then return next, nil, err end
       list[i] = value
@@ -66,33 +71,4 @@ local function parse(chunk, index)
     return stop + 2, list
   end
 end
-
-local function test(str, expected, error)
-  local count, result, err = parse(str, 1)
-  p(str, result, expected)
-  assert(jsonStringify(result) == jsonStringify(expected))
-  assert(error == err)
-end
-
-test("*2\r\n*1\r\n+Hello\r\n+World\r\n", {{"Hello"},"World"})
-test("set language Lua\r\n", {"set", "language", "Lua"})
-test("$5\r\n12345\r\n", "12345")
-test("$5\r\n12345\r")
-test("$5\r\n12345\r\nabc", "12345")
-test("+12")
-test("+1234\r")
-test("+1235\r\n", "1235")
-test("+1235\r\n1234", "1235")
-test(":45\r")
-test(":45\r\n", 45)
-test("-FATAL, YIKES\r\n", nil, "FATAL, YIKES")
-
---
--- local connect = require('coro-net').connect
---
--- coroutine.wrap(function ()
---   local read, write = connect { host = "localhost", port = 6379 }
---   write(encode{"set", "name", "Tim"})
---   p(read())
---   write()
--- end)()
+exports.decode = decode

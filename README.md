@@ -50,6 +50,6 @@ coroutine.wrap(function ()
 end)()
 ```
 
-Redis: http://redis.io/
-Luvit: https://luvit.io/
-RESP: http://redis.io/topics/protocol
+[Redis]: http://redis.io/
+[Luvit]: https://luvit.io/
+[RESP]: http://redis.io/topics/protocol

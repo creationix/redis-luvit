@@ -1,26 +1,19 @@
-local codec = require('./redis-codec')
-local connect = require('coro-net').connect
-local wrap = require('coro-wrapper')
+local connect = require('redis-client')
+local split = require('coro-split')
+local send
 
-local function resp(read, write)
-  read = wrap.reader(read, codec.decode)
-  write = wrap.writer(write, codec.encode)
-  return function (...)
-    if select("#", ...) == 0 then
-      return write()
-    end
-    write {...}
-    return read()
-  end
+local function test()
+  p(send("incr", "count"))
+  local count = send("get", "count")
+  p(send("rpush", "numbers", count))
+  p(send("lpop", "numbers"))
 end
 
 coroutine.wrap(function ()
-  local send = resp(assert(connect { host = "localhost", port = 6379 }))
-
-  p(send("set", "name", "Tim"))
-  p(send("get", "name"))
-  p(send("rpush", "numbers", 5))
-  p(send("rpush", "numbers", 7))
-  p(send("lrange", "numbers", 0, -1))
+  send = connect { host = "localhost", port = 6379 }
+  send("set", "count", 0)
+  split(test, test, test, test)
+  test() test()
+  split(test, test, test, test, test)
   send()
 end)()

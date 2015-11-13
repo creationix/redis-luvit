@@ -1,4 +1,4 @@
-local codec = require('./redis-codec')
+local codec = require('redis-codec')
 local jsonStringify = require('json').stringify
 
 local function test(str, extra, expected)

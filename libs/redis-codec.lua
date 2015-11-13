@@ -21,45 +21,45 @@ local find = string.find
 local sub = string.sub
 
 local function decode(chunk, index)
+  if #chunk < 1 then return end
   local first = byte(chunk, index)
   if first == 43 then -- '+' Simple string
     local start = find(chunk, "\r\n", index, true)
     if not start then return end
-    return sub(chunk, index + 1, start - 1), sub(chunk, start + 2)
+    return sub(chunk, index + 1, start - 1), start + 2
   elseif first == 45 then -- '-' Error
     local start = find(chunk, "\r\n", index, true)
     if not start then return end
-    return {error=sub(chunk, index + 1, start - 1)}, sub(chunk, start + 2)
+    return {error=sub(chunk, index + 1, start - 1)}, start + 2
   elseif first == 58 then -- ':' Integer
     local start = find(chunk, "\r\n", index, true)
     if not start then return end
-    return tonumber(sub(chunk, index + 1, start - 1)), sub(chunk, start + 2)
+    return tonumber(sub(chunk, index + 1, start - 1)), start + 2
   elseif first == 36 then -- '$' Bulk String
     local start = find(chunk, "\r\n", index, true)
     if not start then return end
     local len = tonumber(sub(chunk, index + 1, start - 1))
     if len == -1 then
-      return nil, sub(chunk, start + 2)
+      return nil, start + 2
     end
     if #chunk < start + 3 + len then return end
-    return sub(chunk, start + 2, start + 1 + len), sub(chunk, start + 4 + len)
+    return sub(chunk, start + 2, start + 1 + len), start + 4 + len
   elseif first == 42 then -- '*' List
     local start = find(chunk, "\r\n", index, true)
     if not start then return end
     local len = tonumber(sub(chunk, index + 1, start - 1))
     if len == -1 then
-      return nil, sub(chunk, start + 2)
+      return nil, start + 2
     end
     local list = {}
     index = start + 2
-    chunk = sub(chunk, index)
     for i = 1, len do
       local value
-      value, chunk = decode(chunk, 1)
+      value, index = decode(chunk, index)
       if not value then return end
       list[i] = value
     end
-    return list, chunk
+    return list, index
   else
     local list = {}
     local stop = find(chunk, "\r\n", index, true)
@@ -73,9 +73,11 @@ local function decode(chunk, index)
       list[#list + 1] = sub(chunk, index, e - 1)
       index = e + 1
     end
-    return list, sub(chunk, stop + 2)
+    return list, stop + 2
   end
 end
 function exports.decode(chunk)
-  return decode(chunk, 1)
+  local value, index = decode(chunk, 1)
+  if not index then return end
+  return value, sub(chunk, index)
 end

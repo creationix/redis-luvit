@@ -47,6 +47,9 @@ local function decode(chunk, index)
     local start = find(chunk, "\r\n", index, true)
     if not start then return end
     local len = tonumber(sub(chunk, index + 1, start - 1))
+    if len == -1 then
+      return nil, sub(chunk, start + 2)
+    end
     local list = {}
     index = start + 2
     chunk = sub(chunk, index)

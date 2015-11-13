@@ -2,20 +2,25 @@ local codec = require('./redis-codec')
 local connect = require('coro-net').connect
 local wrap = require('coro-wrapper')
 
-coroutine.wrap(function ()
-  local read, write = connect { host = "localhost", port = 6379 }
+local function resp(read, write)
   read = wrap.reader(read, codec.decode)
   write = wrap.writer(write, codec.encode)
+  return function (...)
+    if select("#", ...) == 0 then
+      return write()
+    end
+    write {...}
+    return read()
+  end
+end
 
-  write {"set", "name", "Tim"}
-  p(read())
-  write {"get", "name"}
-  p(read())
-  write {"rpush", "numbers", 5}
-  write {"rpush", "numbers", 7}
-  p(read())
-  p(read())
-  write {"lrange", "numbers", 0, -1}
-  p(read())
-  write()
+coroutine.wrap(function ()
+  local send = resp(assert(connect { host = "localhost", port = 6379 }))
+
+  p(send("set", "name", "Tim"))
+  p(send("get", "name"))
+  p(send("rpush", "numbers", 5))
+  p(send("rpush", "numbers", 7))
+  p(send("lrange", "numbers", 0, -1))
+  send()
 end)()

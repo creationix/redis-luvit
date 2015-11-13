@@ -2,6 +2,22 @@
 
 A [Redis][] protocol codec for [Luvit][]
 
+## Installing
+
+Simply install using lit directly:
+
+```sh
+lit install creationix/redis-client
+```
+
+Or add to your dependencies list.
+
+```lua
+exports.dependencies = {
+  "creationix/redis-client"
+}
+```
+
 ## Usage
 
 The redis client library wraps the raw codec in an easy to use coroutine based

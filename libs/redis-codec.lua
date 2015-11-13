@@ -1,5 +1,5 @@
 exports.name = "creationix/redis-codec"
-exports.version = "1.0.0"
+exports.version = "1.0.1"
 exports.description = "Pure Lua codec for RESP (REdis Serialization Protocol)"
 exports.tags = {"codec", "redis"}
 exports.license = "MIT"

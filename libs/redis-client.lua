@@ -1,5 +1,5 @@
 exports.name = "creationix/redis-client"
-exports.version = "1.0.1"
+exports.version = "1.0.2"
 exports.description = "A coroutine based client for Redis"
 exports.tags = {"coro", "redis"}
 exports.license = "MIT"

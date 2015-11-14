@@ -6,8 +6,8 @@ exports.license = "MIT"
 exports.author = { name = "Tim Caswell" }
 exports.homepage = "https://github.com/creationix/redis-luvit"
 exports.dependencies = {
-  "redis-codec@1.0.0",
-  "coro-net@1.2.0",
+  "creationix/redis-codec@1.0.0",
+  "creationix/coro-net@1.2.0",
 }
 
 local codec = require('redis-codec')
@@ -26,6 +26,10 @@ return function (config)
   return function (command, ...)
     if not command then return write() end
     write {command, ...}
-    return read()
+    local res = read()
+    if type(res) == "table" and res.error then
+      error(res.error)
+    end
+    return res
   end
 end

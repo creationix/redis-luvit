@@ -9,11 +9,15 @@ exports.dependencies = {
   "luvit/http-codec@1.0.0",
   "creationix/websocket-codec@1.0.8",
   "creationix/coro-net@1.2.0",
+  "creationix/coro-tls@1.2.1",
+  "creationix/coro-wrapper@1.0.0",
 }
 
 local connect = require('coro-net').connect
 local websocketCodec = require('websocket-codec')
 local httpCodec = require('http-codec')
+local tlsWrap = require('coro-tls').wrap
+local wrapper = require('coro-wrapper')
 
 return function (url, subprotocol)
 
@@ -30,14 +34,18 @@ return function (url, subprotocol)
   end
   if #path == 0 then path = "/" end
 
-  assert(not tls, "TLS is not supported yet")
-
-  local read, write, socket, updateDecoder, updateEncoder = assert(connect{
+  local sockread, sockwrite, socket  = assert(connect{
     host = host,
     port = port,
-    encode = httpCodec.encoder(),
-    decode = httpCodec.decoder(),
   })
+  local read,write = sockread, sockwrite
+	
+  if tls then
+    sockread, sockwrite = tlsWrap(  sockread, sockwrite )
+  end
+  
+  read = wrapper.reader( sockread, httpCodec.decoder())
+  write = wrapper.writer( sockwrite, httpCodec.encoder())
 
   -- Perform the websocket handshake
   assert(websocketCodec.handshake({
@@ -57,8 +65,8 @@ return function (url, subprotocol)
   end))
 
   -- Upgrade the protocol to websocket
-  updateDecoder(websocketCodec.decode)
-  updateEncoder(websocketCodec.encode)
+  read =  wrapper.reader(sockread, websocketCodec.decode )
+  write = wrapper.writer(sockwrite, websocketCodec.encode)
 
   return read, write, socket
 end

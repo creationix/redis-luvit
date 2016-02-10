@@ -1,21 +1,23 @@
-exports.name = "creationix/websocket-client"
-exports.version = "1.0.0"
-exports.description = "A coroutine based client for Websockets"
-exports.tags = {"coro", "websocket"}
-exports.license = "MIT"
-exports.author = { name = "Tim Caswell" }
-exports.homepage = "https://github.com/creationix/redis-luvit"
-exports.dependencies = {
-  "luvit/http-codec@1.0.0",
-  "creationix/websocket-codec@1.0.8",
-  "creationix/coro-net@1.2.0",
-}
+--[[lit-meta
+  name = "creationix/websocket-client"
+  version = "2.0.0"
+  description = "A coroutine based client for Websockets"
+  tags = {"coro", "websocket"}
+  license = "MIT"
+  author = { name = "Tim Caswell" }
+  homepage = "https://github.com/creationix/redis-luvit"
+  dependencies = {
+    "luvit/http-codec@2.0.0",
+    "creationix/websocket-codec@2.0.0",
+    "creationix/coro-net@2.0.0",
+  }
+]]
 
 local connect = require('coro-net').connect
 local websocketCodec = require('websocket-codec')
 local httpCodec = require('http-codec')
 
-return function (url, subprotocol)
+return function (url, subprotocol, headers)
 
   local protocol, host, port, path = string.match(url, "^(wss?)://([^:/]+):?(%d*)(/?[^#]*)")
   local tls
@@ -45,11 +47,14 @@ return function (url, subprotocol)
     path = path,
     protocol = subprotocol
   }, function (req)
+    for _ = 1, #headers do
+      req[#req + 1] = headers[1]
+    end
     write(req)
     local res = read()
     if not res then error("Missing server response") end
     if res.code == 400 then
-      p { req = req, res = res }
+      -- p { req = req, res = res }
       local reason = read() or res.reason
       error("Invalid request: " .. reason)
     end

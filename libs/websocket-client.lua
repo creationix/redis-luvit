@@ -1,6 +1,6 @@
 --[[lit-meta
   name = "creationix/websocket-client"
-  version = "2.0.0"
+  version = "3.0.1"
   description = "A coroutine based client for Websockets"
   tags = {"coro", "websocket"}
   license = "MIT"
@@ -17,24 +17,24 @@ local connect = require('coro-net').connect
 local websocketCodec = require('websocket-codec')
 local httpCodec = require('http-codec')
 
-return function (url, subprotocol, headers)
+return function (url, subprotocol, options)
+  options = options or {}
+  local headers = options.headers or {}
 
   local protocol, host, port, path = string.match(url, "^(wss?)://([^:/]+):?(%d*)(/?[^#]*)")
-  local tls
+  local tls = options.tls
   if protocol == "ws" then
     port = tonumber(port) or 80
-    tls = false
   elseif protocol == "wss" then
     port = tonumber(port) or 443
-    tls = true
+    if not tls then tls = {} end
   else
     error("Sorry, only ws:// or wss:// protocols supported")
   end
   if #path == 0 then path = "/" end
 
-  assert(not tls, "TLS is not supported yet")
-
   local read, write, socket, updateDecoder, updateEncoder = assert(connect{
+    tls = tls,
     host = host,
     port = port,
     encode = httpCodec.encoder(),

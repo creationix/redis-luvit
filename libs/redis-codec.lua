@@ -1,12 +1,14 @@
-exports.name = "creationix/redis-codec"
-exports.version = "1.0.1"
-exports.description = "Pure Lua codec for RESP (REdis Serialization Protocol)"
-exports.tags = {"codec", "redis"}
-exports.license = "MIT"
-exports.author = { name = "Tim Caswell" }
-exports.homepage = "https://github.com/creationix/redis-luvit"
+--[[lit-meta
+name = "creationix/redis-codec"
+version = "1.0.2"
+description = "Pure Lua codec for RESP (REdis Serialization Protocol)"
+tags = {"codec", "redis"}
+license = "MIT"
+author = { name = "Tim Caswell" }
+homepage = "https://github.com/creationix/redis-luvit"
+]]
 
-function exports.encode(list)
+local function encode(list)
   local len = #list
   local parts = {"*" .. len .. '\r\n'}
   for i = 1, len do
@@ -20,7 +22,7 @@ local byte = string.byte
 local find = string.find
 local sub = string.sub
 
-local function decode(chunk, index)
+local function innerDecode(chunk, index)
   if #chunk < 1 then return end
   local first = byte(chunk, index)
   if first == 43 then -- '+' Simple string
@@ -55,7 +57,7 @@ local function decode(chunk, index)
     index = start + 2
     for i = 1, len do
       local value
-      value, index = decode(chunk, index)
+      value, index = innerDecode(chunk, index)
       if not value then return end
       list[i] = value
     end
@@ -76,8 +78,14 @@ local function decode(chunk, index)
     return list, stop + 2
   end
 end
-function exports.decode(chunk)
-  local value, index = decode(chunk, 1)
+
+local function decode(chunk)
+  local value, index = innerDecode(chunk, 1)
   if not index then return end
   return value, sub(chunk, index)
 end
+
+return {
+  encode = encode,
+  decode = decode,
+}

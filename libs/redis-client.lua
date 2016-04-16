@@ -1,14 +1,16 @@
-exports.name = "creationix/redis-client"
-exports.version = "1.0.2"
-exports.description = "A coroutine based client for Redis"
-exports.tags = {"coro", "redis"}
-exports.license = "MIT"
-exports.author = { name = "Tim Caswell" }
-exports.homepage = "https://github.com/creationix/redis-luvit"
-exports.dependencies = {
-  "creationix/redis-codec@1.0.0",
-  "creationix/coro-net@1.2.0",
+--[[lit-meta
+name = "creationix/redis-client"
+version = "1.1.0"
+description = "A coroutine based client for Redis"
+tags = {"coro", "redis"}
+license = "MIT"
+author = { name = "Tim Caswell" }
+homepage = "https://github.com/creationix/redis-luvit"
+dependencies = {
+  "creationix/redis-codec@1.0.2",
+  "creationix/coro-net@2.2.0",
 }
+]]
 
 local codec = require('redis-codec')
 local connect = require('coro-net').connect

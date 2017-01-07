@@ -58,8 +58,8 @@ local function innerDecode(chunk, index)
     for i = 1, len do
       local value
       value, index = innerDecode(chunk, index)
-      if not value then return end
-      list[i] = value
+      --if not value then return end
+      list[i] = value or false
     end
     return list, index
   else

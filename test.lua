@@ -2,8 +2,9 @@ local codec = require('redis-codec')
 local jsonStringify = require('json').stringify
 
 local function test(str, extra, expected)
-  local result, e = codec.decode(str)
+  local result, e = codec.decode(str, 1)
   p(str)
+  e = str and extra and str:sub(e)
   p(e, extra)
   p(result, expected)
   assert(extra == e)

@@ -1,14 +1,14 @@
 --[[lit-meta
 name = "creationix/redis-client"
-version = "1.1.0"
+version = "3.0.0"
 description = "A coroutine based client for Redis"
 tags = {"coro", "redis"}
 license = "MIT"
 author = { name = "Tim Caswell" }
 homepage = "https://github.com/creationix/redis-luvit"
 dependencies = {
-  "creationix/redis-codec@1.0.2",
-  "creationix/coro-net@2.2.0",
+  "creationix/redis-codec@3.0.0",
+  "creationix/coro-net@3.0.0",
 }
 ]]
 

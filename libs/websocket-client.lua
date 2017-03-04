@@ -1,15 +1,15 @@
 --[[lit-meta
   name = "creationix/websocket-client"
-  version = "3.0.1"
+  version = "4.0.0"
   description = "A coroutine based client for Websockets"
   tags = {"coro", "websocket"}
   license = "MIT"
   author = { name = "Tim Caswell" }
   homepage = "https://github.com/creationix/redis-luvit"
   dependencies = {
-    "luvit/http-codec@2.0.0",
-    "creationix/websocket-codec@2.0.0",
-    "creationix/coro-net@2.0.0",
+    "luvit/http-codec@3.0.0",
+    "creationix/websocket-codec@3.0.0",
+    "creationix/coro-net@3.0.0",
   }
 ]]
 

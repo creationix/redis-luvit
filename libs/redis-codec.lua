@@ -1,6 +1,6 @@
 --[[lit-meta
 name = "creationix/redis-codec"
-version = "1.0.2"
+version = "3.0.0"
 description = "Pure Lua codec for RESP (REdis Serialization Protocol)"
 tags = {"codec", "redis"}
 license = "MIT"
@@ -22,7 +22,7 @@ local byte = string.byte
 local find = string.find
 local sub = string.sub
 
-local function innerDecode(chunk, index)
+local function decode(chunk, index)
   if #chunk < 1 then return end
   local first = byte(chunk, index)
   if first == 43 then -- '+' Simple string
@@ -57,7 +57,7 @@ local function innerDecode(chunk, index)
     index = start + 2
     for i = 1, len do
       local value
-      value, index = innerDecode(chunk, index)
+      value, index = decode(chunk, index)
       if not value then return end
       list[i] = value
     end
@@ -77,12 +77,6 @@ local function innerDecode(chunk, index)
     end
     return list, stop + 2
   end
-end
-
-local function decode(chunk)
-  local value, index = innerDecode(chunk, 1)
-  if not index then return end
-  return value, sub(chunk, index)
 end
 
 return {
